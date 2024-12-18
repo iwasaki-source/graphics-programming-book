@@ -44,6 +44,8 @@ class Viper extends Character {
   constructor(ctx, x, y, w, h, image) {
     super(ctx, x, y, w, h, 0, image);
     this.speed = 3;
+    this.shotCheckCounter = 0;
+    this.shotInterval = 10;
     this.isComing = false;
     this.comingStart = null;
     this.comingEndPosition = null;
@@ -101,13 +103,17 @@ class Viper extends Character {
 
 
       if (window.isKeyDown.key_a) {
-        for (let i = 0; i < this.shotArray.length; ++i) {
-          if (this.shotArray[i].life <= 0) {
-            this.shotArray[i].set(this.position.x, this.position.y);
-            break;
+        if (this.shotCheckCounter >= 0) {
+          for (let i = 0; i < this.shotArray.length; ++i) {
+            if (this.shotArray[i].life <= 0) {
+              this.shotArray[i].set(this.position.x, this.position.y);
+              this.shotCheckCounter = -this.shotInterval;
+              break;
+            }
           }
         }
       }
+      ++this.shotCheckCounter;
     }
 
     this.draw();
