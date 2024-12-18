@@ -11,13 +11,19 @@ class Position {
 }
 
 class Character {
-  constructor(ctx, x, y, w, h, life, image) {
+  constructor(ctx, x, y, w, h, life, imagePath) {
     this.ctx = ctx;
     this.position = new Position(x, y);
     this.width = w;
     this.height = h;
     this.life = life;
-    this.image = image;
+    this.ready = false;
+
+    this.image = new Image();
+    this.image.addEventListener('load', () => {
+      this.ready = true;
+    });
+    this.image.src = imagePath;
   }
 
   draw() {
@@ -41,6 +47,7 @@ class Viper extends Character {
     this.isComing = false;
     this.comingStart = null;
     this.comingEndPosition = null;
+    this.shotArray = null;
   }
 
   setComing(startX, startY, endX, endY) {
@@ -49,6 +56,10 @@ class Viper extends Character {
     this.position.set(startX, startY);
     this.comingStartPosition = new Position(startX, startY);
     this.comingEndPosition = new Position(endX, endY);
+  }
+
+  setShotArray(shotArray) {
+    this.shotArray = shotArray;
   }
 
   update() {
@@ -87,9 +98,42 @@ class Viper extends Character {
       let tx = Math.min(Math.max(this.position.x, 0), canvasWidth);
       let ty = Math.min(Math.max(this.position.y, 0), canvasHeight);
       this.position.set(tx, ty);
+
+
+      if (window.isKeyDown.key_a) {
+        for (let i = 0; i < this.shotArray.length; ++i) {
+          if (this.shotArray[i].life <= 0) {
+            this.shotArray[i].set(this.position.x, this.position.y);
+            break;
+          }
+        }
+      }
     }
 
     this.draw();
     this.ctx.globalAlpha = 1.0;
+  }
+}
+
+class Shot extends Character {
+  constructor(ctx, x, y, w, h, imagePath) {
+    super(ctx, x, y, w, h, 0, imagePath);
+    this.speed = 7;
+  }
+
+  set(x, y) {
+    this.position.set(x, y);
+    this.life = 1;
+  }
+
+  update() {
+    if (this.life <= 0) return;
+
+    if (this.position.y + this.height < 0) {
+      this.life = 0;
+    }
+
+    this.position.y -= this.speed;
+    this.draw();
   }
 }
