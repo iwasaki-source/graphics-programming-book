@@ -1,4 +1,6 @@
 (() => {
+  window.isKeyDown = {};
+
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
 
@@ -45,23 +47,11 @@
 
   function eventSetting() {
     window.addEventListener('keydown', (event) => {
-      if (viper.isComing === true) return;
-
-      switch(event.key) {
-        case 'ArrowLeft':
-          viper.position.x -= 10;
-          break;
-        case 'ArrowRight':
-          viper.position.x += 10;
-          break;
-        case 'ArrowUp':
-          viper.position.y -= 10;
-          break;
-        case 'ArrowDown':
-          viper.position.y += 10;
-          break;
-      }
+      isKeyDown[`key_${event.key}`] = true;
     });
+    window.addEventListener('keyup', (event) => {
+      isKeyDown[`key_${event.key}`] = false;
+    })
   }
 
   function render() {

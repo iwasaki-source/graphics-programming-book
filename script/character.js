@@ -37,7 +37,7 @@ class Character {
 class Viper extends Character {
   constructor(ctx, x, y, w, h, image) {
     super(ctx, x, y, w, h, 0, image);
-
+    this.speed = 3;
     this.isComing = false;
     this.comingStart = null;
     this.comingEndPosition = null;
@@ -69,6 +69,24 @@ class Viper extends Character {
       if (justTime % 100 < 50) {
         this.ctx.globalAlpha = 0.5;
       }
+    } else {
+      if (window.isKeyDown.key_ArrowLeft) {
+        this.position.x -= this.speed;
+      }
+      if (window.isKeyDown.key_ArrowRight) {
+        this.position.x += this.speed;
+      }
+      if (window.isKeyDown.key_ArrowUp) {
+        this.position.y -= this.speed;
+      }
+      if (window.isKeyDown.key_ArrowDown) {
+        this.position.y += this.speed;
+      }
+      let canvasWidth = this.ctx.canvas.width;
+      let canvasHeight = this.ctx.canvas.height;
+      let tx = Math.min(Math.max(this.position.x, 0), canvasWidth);
+      let ty = Math.min(Math.max(this.position.y, 0), canvasHeight);
+      this.position.set(tx, ty);
     }
 
     this.draw();
