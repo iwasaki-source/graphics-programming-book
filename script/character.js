@@ -14,6 +14,8 @@ class Character {
   constructor(ctx, x, y, w, h, life, imagePath) {
     this.ctx = ctx;
     this.position = new Position(x, y);
+    this.vector = new Position(0.0, -1.0);
+    this.angle = 270 * Math.PI / 180;
     this.width = w;
     this.height = h;
     this.life = life;
@@ -24,6 +26,17 @@ class Character {
       this.ready = true;
     });
     this.image.src = imagePath;
+  }
+
+  setVector(x, y) {
+    this.vector.set(x, y);
+  }
+
+  setVectorFromAngle(angle) {
+    this.angle = angle;
+    let sin = Math.sin(angle);
+    let cos = Math.cos(angle);
+    this.vector.set(cos, sin);
   }
 
   draw() {
@@ -37,6 +50,25 @@ class Character {
       this.width,
       this.height
     );
+  }
+
+  rotationDraw() {
+    this.ctx.save();
+    this.ctx.translate(this.position.x, this.position.y);
+    this.ctx.rotate(this.angle - Math.PI * 1.5);
+
+    let offsetX = this.width / 2;
+    let offsetY = this.height / 2;
+
+    this.ctx.drawImage(
+      this.image,
+      -offsetX,
+      -offsetY,
+      this.width,
+      this.height
+    );
+
+    this.ctx.restore();
   }
 }
 
@@ -117,10 +149,13 @@ class Viper extends Character {
 
           for (i = 0; i < this.singleShotArray.length; i += 2) {
             if (this.singleShotArray[i].life <= 0 && this.singleShotArray[i + 1].life <= 0) {
+              let radCW = 280 * Math.PI / 180;
+              let radCCW = 260 * Math.PI / 180;
+
               this.singleShotArray[i].set(this.position.x, this.position.y);
-              this.singleShotArray[i].setVector(0.2, -0.9);
+              this.singleShotArray[i].setVectorFromAngle(radCW);
               this.singleShotArray[i + 1].set(this.position.x, this.position.y);
-              this.singleShotArray[i + 1].setVector(-0.2, -0.9);
+              this.singleShotArray[i + 1].setVectorFromAngle(radCCW);
               this.shotCheckCounter = -this.shotInterval;
               break;
             }
@@ -139,17 +174,11 @@ class Shot extends Character {
   constructor(ctx, x, y, w, h, imagePath) {
     super(ctx, x, y, w, h, 0, imagePath);
     this.speed = 7;
-
-    this.vector = new Position(0.0, -1.0);
   }
 
   set(x, y) {
     this.position.set(x, y);
     this.life = 1;
-  }
-
-  setVector(x, y) {
-    this.vector.set(x, y);
   }
 
   update() {
@@ -161,6 +190,6 @@ class Shot extends Character {
 
     this.position.x += this.vector.x * this.speed;
     this.position.y += this.vector.y * this.speed;
-    this.draw();
+    this.rotationDraw();
   }
 }
