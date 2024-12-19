@@ -50,6 +50,7 @@ class Viper extends Character {
     this.comingStart = null;
     this.comingEndPosition = null;
     this.shotArray = null;
+    this.singleShotArray = null;
   }
 
   setComing(startX, startY, endX, endY) {
@@ -60,8 +61,9 @@ class Viper extends Character {
     this.comingEndPosition = new Position(endX, endY);
   }
 
-  setShotArray(shotArray) {
+  setShotArray(shotArray, singleShotArray) {
     this.shotArray = shotArray;
+    this.singleShotArray = singleShotArray;
   }
 
   update() {
@@ -104,9 +106,21 @@ class Viper extends Character {
 
       if (window.isKeyDown.key_a) {
         if (this.shotCheckCounter >= 0) {
+          let i;
           for (let i = 0; i < this.shotArray.length; ++i) {
             if (this.shotArray[i].life <= 0) {
               this.shotArray[i].set(this.position.x, this.position.y);
+              this.shotCheckCounter = -this.shotInterval;
+              break;
+            }
+          }
+
+          for (i = 0; i < this.singleShotArray.length; i += 2) {
+            if (this.singleShotArray[i].life <= 0 && this.singleShotArray[i + 1].life <= 0) {
+              this.singleShotArray[i].set(this.position.x, this.position.y);
+              this.singleShotArray[i].setVector(0.2, -0.9);
+              this.singleShotArray[i + 1].set(this.position.x, this.position.y);
+              this.singleShotArray[i + 1].setVector(-0.2, -0.9);
               this.shotCheckCounter = -this.shotInterval;
               break;
             }
@@ -125,11 +139,17 @@ class Shot extends Character {
   constructor(ctx, x, y, w, h, imagePath) {
     super(ctx, x, y, w, h, 0, imagePath);
     this.speed = 7;
+
+    this.vector = new Position(0.0, -1.0);
   }
 
   set(x, y) {
     this.position.set(x, y);
     this.life = 1;
+  }
+
+  setVector(x, y) {
+    this.vector.set(x, y);
   }
 
   update() {
@@ -139,7 +159,8 @@ class Shot extends Character {
       this.life = 0;
     }
 
-    this.position.y -= this.speed;
+    this.position.x += this.vector.x * this.speed;
+    this.position.y += this.vector.y * this.speed;
     this.draw();
   }
 }

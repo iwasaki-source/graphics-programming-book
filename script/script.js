@@ -12,6 +12,7 @@
   let ctx = null;
   let startTime = null;
   let shotArray = [];
+  let singleShotArray = [];
 
   window.addEventListener('load', () => {
     util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
@@ -37,9 +38,11 @@
 
     for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
       shotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/viper_shot.png');
+      singleShotArray[i * 2] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
+      singleShotArray[i * 2 + 1] = new Shot(ctx, 0, 0, 32, 32, './image/viper_single_shot.png');
     }
 
-    viper.setShotArray(shotArray);
+    viper.setShotArray(shotArray, singleShotArray);
   }
 
   function loadCheck() {
@@ -47,6 +50,10 @@
     ready = ready && viper.ready;
 
     shotArray.map((v) => {
+      ready = ready && v.ready;
+    });
+
+    singleShotArray.map((v) => {
       ready = ready && v.ready;
     });
 
@@ -79,7 +86,11 @@
 
     shotArray.map((v) => {
       v.update();
-    })
+    });
+
+    singleShotArray.map((v) => {
+      v.update();
+    });
 
     requestAnimationFrame(render);
   }
