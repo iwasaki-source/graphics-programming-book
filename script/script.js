@@ -6,6 +6,7 @@
   const ENEMY_MAX_COUNT = 10;
   const SHOT_MAX_COUNT = 10;
   const ENEMY_SHOT_MAX_COUNT = 50;
+  const EXPLOSION_MAX_COUNT = 10;
 
   let viper = null;
   let util = null;
@@ -17,6 +18,7 @@
   let shotArray = [];
   let singleShotArray = [];
   let enemyShotArray = [];
+  let explosionArray = [];
 
   window.addEventListener('load', () => {
     util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
@@ -33,6 +35,10 @@
     canvas.height = CANVAS_HEIGHT;
 
     scene = new SceneManager();
+
+    for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
+      explosionArray[i] = new Explosion(ctx, 50.0, 15, 30.0, 0.25);
+    }
 
     for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
       shotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/viper_shot.png');
@@ -64,6 +70,10 @@
       shotArray[i].setTargets(enemyArray);
       singleShotArray[i * 2].setTargets(enemyArray);
       singleShotArray[i * 2 + 1].setTargets(enemyArray);
+
+      shotArray[i].setExplosions(explosionArray);
+      singleShotArray[i * 2].setExplosions(explosionArray);
+      singleShotArray[i * 2 + 1].setExplosions(explosionArray);
     }
   }
 
@@ -156,6 +166,10 @@
     enemyShotArray.map((v) => {
       v.update();
     });
+
+    explosionArray.map((v) => {
+      v.update();
+    })
 
     requestAnimationFrame(render);
   }

@@ -236,6 +236,7 @@ class Shot extends Character {
     this.speed = 7;
     this.power = 1;
     this.targetArray = [];
+    this.explosionArray = [];
   }
 
   set(x, y, speed, power) {
@@ -263,6 +264,12 @@ class Shot extends Character {
     }
   }
 
+  setExplosions(targets) {
+    if (targets != null && Array.isArray(targets) === true && targets.length > 0) {
+      this.explosionArray = targets;
+    }
+  }
+
   update() {
     if (this.life <= 0) return;
 
@@ -282,10 +289,74 @@ class Shot extends Character {
 
       if (dist <= (this.width + v.width) / 4) {
         v.life -= this.power;
+
+        if (v.life <= 0) {
+          for (let i = 0; i < this.explosionArray.length; ++i) {
+            if (this.explosionArray[i].life !== true) {
+              this.explosionArray[i].set(v.position.x, v.position.y);
+              break;
+            }
+          }
+        }
+
         this.life = 0;
       }
     })
 
     this.rotationDraw();
+  }
+}
+
+class Explosion {
+  constructor(ctx, radius, count, size, timeRange, color = '#ff1166') {
+    this.ctx = ctx;
+    this.life = false;
+    this.color = color;
+    this.position = null;
+    this.radius = radius;
+    this.count = count;
+    this.startTime = 0;
+    this.timeRange = timeRange;
+    this.fireSize = size;
+    this.firePosition = [];
+    this.fireVector = [];
+  }
+
+  set(x, y) {
+    for (let i = 0; i < this.count; ++i) {
+      this.firePosition[i] = new Position(x, y);
+      let r = Math.random() * Math.PI * 2.0;
+      let s = Math.sin(r);
+      let c = Math.cos(r);
+      this.fireVector[i] = new Position(c, s);
+    }
+    this.life = true;
+    this.startTime = Date.now();
+  }
+
+  update() {
+    if (this.life !== true) return;
+
+    this.ctx.fillStyle = this.color;
+    this.ctx.globalAlpha = 0.5;
+    let time = (Date.now() - this.startTime) / 1000;
+    let progress = Math.min(time / this.timeRange, 1.0);
+
+    for (let i = 0; i < this.firePosition.length; ++i) {
+      let d = this.radius * progress;
+      let x = this.firePosition[i].x + this.fireVector[i].x * d;
+      let y = this.firePosition[i].y + this.fireVector[i].y * d;
+
+      this.ctx.fillRect(
+        x - this.fireSize / 2,
+        y - this.fireSize / 2,
+        this.fireSize,
+        this.fireSize
+      );
+    }
+
+    if (progress >= 1.0) {
+      this.life = false;
+    }
   }
 }
