@@ -19,6 +19,7 @@
   let singleShotArray = [];
   let enemyShotArray = [];
   let explosionArray = [];
+  let restart = false;
 
   window.addEventListener('load', () => {
     util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
@@ -59,6 +60,8 @@
 
     for (i = 0; i < ENEMY_SHOT_MAX_COUNT; ++i) {
       enemyShotArray[i] = new Shot(ctx, 0, 0, 32, 32, './image/enemy_shot.png');
+      enemyShotArray[i].setTargets([viper]);
+      enemyShotArray[i].setExplosions(explosionArray);
     }
 
     for (i = 0; i < ENEMY_MAX_COUNT; ++i) {
@@ -109,8 +112,13 @@
 
   function eventSetting() {
     window.addEventListener('keydown', (event) => {
-      console.log(event.key);
       isKeyDown[`key_${event.key}`] = true;
+
+      if (event.key === 'Enter') {
+        if (viper.life <= 0) {
+          restart = true;
+        }
+      }
     });
     window.addEventListener('keyup', (event) => {
       isKeyDown[`key_${event.key}`] = false;
@@ -138,7 +146,30 @@
       if (scene.frame === 100) {
         scene.use('invade');
       }
+      if (viper.life <= 0) {
+        scene.use('gameover');
+      }
     });
+
+    scene.add('gameover', (time) => {
+      let textWidth = CANVAS_WIDTH / 2;
+      let loopWidth = CANVAS_WIDTH + textWidth;
+      let x = CANVAS_WIDTH - (scene.frame * 2) % loopWidth;
+      ctx.font = 'bold 72px sans-serif';
+      util.drawText('GAME OVER', x, CANVAS_HEIGHT / 2, '#ff0000', textWidth);
+
+      if (restart === true) {
+        restart = false;
+        viper.setComing(
+          CANVAS_WIDTH / 2,
+          CANVAS_HEIGHT + 50,
+          CANVAS_WIDTH / 2,
+          CANVAS_HEIGHT - 100
+        );
+        scene.use('intro');
+      }
+    })
+
     scene.use('intro');
   }
 

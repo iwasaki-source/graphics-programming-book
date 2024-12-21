@@ -80,7 +80,7 @@ class Character {
 
 class Viper extends Character {
   constructor(ctx, x, y, w, h, image) {
-    super(ctx, x, y, w, h, 0, image);
+    super(ctx, x, y, w, h, 1, image);
     this.speed = 3;
     this.shotCheckCounter = 0;
     this.shotInterval = 10;
@@ -92,6 +92,7 @@ class Viper extends Character {
   }
 
   setComing(startX, startY, endX, endY) {
+    this.life = 1;
     this.isComing = true;
     this.comingStart = Date.now();
     this.position.set(startX, startY);
@@ -105,6 +106,8 @@ class Viper extends Character {
   }
 
   update() {
+    if (this.life <= 0) return;
+
     let justTime = Date.now();
 
     if (this.isComing === true) {
@@ -288,6 +291,10 @@ class Shot extends Character {
       let dist = this.position.distance(v.position);
 
       if (dist <= (this.width + v.width) / 4) {
+        if (v instanceof Viper === true) {
+          if (v.isComing === true) return;
+        }
+
         v.life -= this.power;
 
         if (v.life <= 0) {
