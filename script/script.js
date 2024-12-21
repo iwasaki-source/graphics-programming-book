@@ -37,7 +37,7 @@
     scene = new SceneManager();
 
     for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
-      explosionArray[i] = new Explosion(ctx, 50.0, 15, 30.0, 0.25);
+      explosionArray[i] = new Explosion(ctx, 100.0, 15, 40.0, 0.25);
     }
 
     for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
