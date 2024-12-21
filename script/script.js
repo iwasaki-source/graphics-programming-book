@@ -1,5 +1,6 @@
 (() => {
   window.isKeyDown = {};
+  window.gameScore = 0;
 
   const CANVAS_WIDTH = 640;
   const CANVAS_HEIGHT = 480;
@@ -160,6 +161,7 @@
 
       if (restart === true) {
         restart = false;
+        gameScore = 0;
         viper.setComing(
           CANVAS_WIDTH / 2,
           CANVAS_HEIGHT + 50,
@@ -178,6 +180,9 @@
     util.drawRect(0, 0, canvas.width, canvas.height, '#eeeeee');
 
     let nowTime = (Date.now() - startTime) / 1000;
+
+    ctx.font = 'bold 24px monospace';
+    util.drawText(zeroPaddig(gameScore, 5), 30, 50, '#111111');
 
     scene.update();
     viper.update();
@@ -208,6 +213,12 @@
   function generateRandomInt(range) {
     let random = Math.random();
     return Math.floor(random * range);
+  }
+
+  function zeroPaddig(number, count) {
+    let zeroArray = new Array(count);
+    let zeroString = zeroArray.join('0') + number;
+    return zeroString.slice(-count);
   }
 
 })();
