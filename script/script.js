@@ -9,6 +9,9 @@
   const SHOT_MAX_COUNT = 10;
   const ENEMY_SHOT_MAX_COUNT = 50;
   const EXPLOSION_MAX_COUNT = 10;
+  const BACKGROUND_STAR_MAX_COUNT = 100;
+  const BACKGROUND_STAR_MAX_SIZE = 3;
+  const BACKGROUND_STAR_MAX_SPEED = 4;
 
   let viper = null;
   let util = null;
@@ -21,6 +24,7 @@
   let singleShotArray = [];
   let enemyShotArray = [];
   let explosionArray = [];
+  let backgroundStarArray = [];
   let restart = false;
 
   window.addEventListener('load', () => {
@@ -86,6 +90,17 @@
       shotArray[i].setExplosions(explosionArray);
       singleShotArray[i * 2].setExplosions(explosionArray);
       singleShotArray[i * 2 + 1].setExplosions(explosionArray);
+    }
+
+    for (i = 0; i < BACKGROUND_STAR_MAX_COUNT; ++i) {
+      let size = 1 + Math.random() * (BACKGROUND_STAR_MAX_SIZE - 1);
+      let speed = 1 + Math.random() * (BACKGROUND_STAR_MAX_SPEED - 1);
+
+      backgroundStarArray[i] = new BackgroundStar(ctx, size, speed);
+
+      let x = Math.random() * CANVAS_WIDTH;
+      let y = Math.random() * CANVAS_HEIGHT;
+      backgroundStarArray[i].set(x, y);
     }
   }
 
@@ -240,14 +255,19 @@
 
   function render() {
     ctx.globalAlpha = 1.0;
-    util.drawRect(0, 0, canvas.width, canvas.height, '#eeeeee');
+    util.drawRect(0, 0, canvas.width, canvas.height, '#111122');
 
     let nowTime = (Date.now() - startTime) / 1000;
 
     ctx.font = 'bold 24px monospace';
-    util.drawText(zeroPaddig(gameScore, 5), 30, 50, '#111111');
+    util.drawText(zeroPaddig(gameScore, 5), 30, 50, '#ffffff');
 
     scene.update();
+
+    backgroundStarArray.map((v) => {
+      v.update();
+    });
+
     viper.update();
 
     enemyArray.map((v) => {
