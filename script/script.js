@@ -8,6 +8,7 @@
   const ENEMY_LARGE_MAX_COUNT = 5;
   const SHOT_MAX_COUNT = 10;
   const ENEMY_SHOT_MAX_COUNT = 50;
+  const HOMING_MAX_COUNT = 50;
   const EXPLOSION_MAX_COUNT = 10;
   const BACKGROUND_STAR_MAX_COUNT = 100;
   const BACKGROUND_STAR_MAX_SIZE = 3;
@@ -18,11 +19,13 @@
   let canvas = null;
   let ctx = null;
   let scene = null;
+  let boss = null;
   let startTime = null;
   let enemyArray = [];
   let shotArray = [];
   let singleShotArray = [];
   let enemyShotArray = [];
+  let homingArray = [];
   let explosionArray = [];
   let backgroundStarArray = [];
   let restart = false;
@@ -83,6 +86,17 @@
       enemyShotArray[i].setExplosions(explosionArray);
     }
 
+    for (i = 0; i < HOMING_MAX_COUNT; ++i) {
+      homingArray[i] = new Homing(ctx, 0, 0, 32, 32, './image/homing_shot.png');
+      homingArray[i].setTargets([viper]);
+      homingArray[i].setExplosions(explosionArray);
+    }
+
+    boss = new Boss(ctx, 0, 0, 128, 128, './image/boss.png');
+    boss.setShotArray(enemyShotArray);
+    boss.setHomingArray(homingArray);
+    boss.setAttackTarget(viper);
+
     for (i = 0; i < ENEMY_SMALL_MAX_COUNT; ++i) {
       enemyArray[i] = new Enemy(ctx, 0, 0, 48, 48, './image/enemy_small.png');
       enemyArray[i].setShotArray(enemyShotArray);
@@ -95,10 +109,12 @@
       enemyArray[ENEMY_SMALL_MAX_COUNT + i].setAttackTarget(viper);
     }
 
+    let concatEnemyArray = enemyArray.concat([boss]);
+
     for (i = 0; i < SHOT_MAX_COUNT; ++i) {
-      shotArray[i].setTargets(enemyArray);
-      singleShotArray[i * 2].setTargets(enemyArray);
-      singleShotArray[i * 2 + 1].setTargets(enemyArray);
+      shotArray[i].setTargets(concatEnemyArray);
+      singleShotArray[i * 2].setTargets(concatEnemyArray);
+      singleShotArray[i * 2 + 1].setTargets(concatEnemyArray);
 
       shotArray[i].setExplosions(explosionArray);
       singleShotArray[i * 2].setExplosions(explosionArray);
@@ -128,6 +144,10 @@
     shotArray.map((v) => {
       ready = ready && v.ready;
     });
+
+    homingArray.map((v) => {
+      ready = ready && v.ready;
+    })
 
     singleShotArray.map((v) => {
       ready = ready && v.ready;
@@ -230,7 +250,7 @@
         let i = ENEMY_SMALL_MAX_COUNT + ENEMY_LARGE_MAX_COUNT;
         for (let j = ENEMY_SMALL_MAX_COUNT; j < i; ++j) {
           let e = enemyArray[j];
-          e.set(CANVAS_WIDTH / 2, -e.height, 50, 'large');
+          e.set(CANVAS_WIDTH / 2, -e.height, 10, 'large');
           break;
         }
       }
@@ -240,6 +260,20 @@
 
       if (viper.life <= 0) {
         scene.use('gameover');
+      }
+    })
+
+    scene.add('invade_boss', (time) => {
+      if (scene.frame === 0) {
+        boss.set(CANVAS_WIDTH / 2, -boss.height, 250);
+        boss.setMode('invade');
+      }
+      if (viper.life <= 0) {
+        scene.use('gameover');
+        boss.setMode('escape');
+      }
+      if (boss.life <= 0) {
+        scene.use('intro');
       }
     })
 
