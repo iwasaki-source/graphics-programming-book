@@ -26,14 +26,26 @@
   let explosionArray = [];
   let backgroundStarArray = [];
   let restart = false;
+  let sound = null;
 
   window.addEventListener('load', () => {
     util = new Canvas2DUtility(document.body.querySelector('#main_canvas'));
     canvas = util.canvas;
     ctx = util.context;
 
-    initialize();
-    loadCheck();
+    let button = document.querySelector('#start_button');
+    button.addEventListener('click', () => {
+      button.disabled = true;
+      sound = new Sound();
+      sound.load('./sound/explosion.mp3', (error) => {
+        if (error != null) {
+          alert('ファイルの読み込みエラーです')
+          return;
+        }
+        initialize();
+        loadCheck();
+      })
+    })
   });
 
   function initialize() {
@@ -45,6 +57,7 @@
 
     for (i = 0; i < EXPLOSION_MAX_COUNT; ++i) {
       explosionArray[i] = new Explosion(ctx, 100.0, 15, 40.0, 0.25);
+      explosionArray[i].setSound(sound);
     }
 
     for (let i = 0; i < SHOT_MAX_COUNT; ++i) {
