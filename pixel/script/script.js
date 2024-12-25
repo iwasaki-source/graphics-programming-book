@@ -23,8 +23,38 @@
   function render() {
     ctx.drawImage(image, 0, 0);
     let imageData = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    let outputData = invertFilter(imageData);
+
+    // let outputData = invertFilter(imageData);
+    let outputData = grayscaleFilter(imageData);
+
     ctx.putImageData(outputData, 0, 0);
+  }
+
+  // グレイスケールフィルター
+  function grayscaleFilter(imageData) {
+    let width = imageData.width;
+    let height = imageData.height;
+    let data = imageData.data;
+
+    let out = ctx.createImageData(width, height);
+
+    for (let i = 0; i < height; ++i) {
+      for (let j = 0; j < width; ++j) {
+        let index = (i * width + j) * 4;
+
+        let r = data[index];
+        let g = data[index + 1];
+        let b = data[index + 2];
+
+        let luminace = (r + g + b) / 3;
+
+        out.data[index] = luminace;
+        out.data[index + 1] = luminace;
+        out.data[index + 2] = luminace;
+        out.data[index + 3] = data[index + 3];
+      }
+    }
+    return out;
   }
 
   // ネガポジ反転フィルター
