@@ -27,9 +27,58 @@
     // let outputData = invertFilter(imageData);
     // let outputData = grayscaleFilter(imageData);
     // let outputData = binarizationFilter(imageData);
-    let outputData = laplacianFilter(imageData);
+    // let outputData = laplacianFilter(imageData);
+    let outputData = medianFilter(imageData);
 
     ctx.putImageData(outputData, 0, 0);
+  }
+
+  // メディアンフィルター
+  function medianFilter(imageData) {
+    let width = imageData.width;
+    let height = imageData.height;
+    let data = imageData.data;
+
+    let out = ctx.createImageData(width, height);
+
+    for (let i = 0; i < height; ++i) {
+      for (let j = 0; j < width; ++j) {
+        let index = (i * width + j) * 4;
+
+        let topIndex = (Math.max(i - 1, 0) * width + j) * 4;
+        let bottomIndex = (Math.min(i + 1, height - 1) * width + j) * 4;
+        let leftIndex = (i * width + Math.max(j - 1, 0)) * 4;
+        let rightIndex = (i * width + Math.min(j + 1, width - 1)) * 4;
+        let topLeftIndex = (Math.max(i - 1, 0) * width + Math.max(j - 1, 0)) * 4;
+        let bottomLeftIndex = (Math.min(i + 1, height - 1) * width +Math.max(j - 1, 0)) * 4;
+        let topRightIndex = (Math.max(i - 1, 0) * width + Math.min(j + 1, width - 1)) * 4;
+        let bottomRightIndex = (Math.min(i + 1, height - 1) * width + Math.min(j + 1, width - 1)) * 4;
+
+        let luminanceArray = [
+          {index: index,            luminance: getLuminance(data, index)},
+          {index: topIndex,         luminance: getLuminance(data, topIndex)},
+          {index: bottomIndex,      luminance: getLuminance(data, bottomIndex)},
+          {index: leftIndex,        luminance: getLuminance(data, leftIndex)},
+          {index: rightIndex,       luminance: getLuminance(data, rightIndex)},
+          {index: topLeftIndex,     luminance: getLuminance(data, topLeftIndex)},
+          {index: bottomLeftIndex,  luminance: getLuminance(data, bottomLeftIndex)},
+          {index: topRightIndex,    luminance: getLuminance(data, topRightIndex)},
+          {index: bottomRightIndex, luminance: getLuminance(data, bottomRightIndex)}
+        ];
+
+        luminanceArray.sort((a, b) => {
+          return a.luminance - b.luminance;
+        })
+
+        let sorted = luminanceArray[4];
+
+        out.data[index] = data[sorted.index];
+        out.data[index + 1] = data[sorted.index + 1];
+        out.data[index + 2] = data[sorted.index + 2];
+        out.data[index + 3] = data[sorted.index + 3];
+      }
+    }
+    return out;
   }
 
   // ラプラシアンフィルター
@@ -149,6 +198,13 @@
       }
     }
     return out;
+  }
+
+  function getLuminance(data, index) {
+    let r = data[index];
+    let g = data[index + 1];
+    let b = data[index + 2];
+    return (r + g + b) / 3;
   }
 
   function imageLoader(path, callback) {
