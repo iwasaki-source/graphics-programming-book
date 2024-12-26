@@ -28,9 +28,35 @@
     // let outputData = grayscaleFilter(imageData);
     // let outputData = binarizationFilter(imageData);
     // let outputData = laplacianFilter(imageData);
-    let outputData = medianFilter(imageData);
+    // let outputData = medianFilter(imageData);
+    let outputData = mosaicFilter(imageData, 8);
 
     ctx.putImageData(outputData, 0, 0);
+  }
+
+  // モザイクフィルター
+  function mosaicFilter(imageData, blockSize) {
+    let width = imageData.width;
+    let height = imageData.height;
+    let data = imageData.data;
+
+    let out = ctx.createImageData(width, height);
+
+    for (let i = 0; i < height; ++i) {
+      for (let j = 0; j < width; ++j) {
+        let index = (i * width + j) * 4;
+
+        let x = Math.floor(j / blockSize) * blockSize;
+        let y = Math.floor(i / blockSize) * blockSize;
+        let floorIndex = (y * width + x) * 4;
+
+        out.data[index] = data[floorIndex];
+        out.data[index + 1] = data[floorIndex + 1];
+        out.data[index + 2] = data[floorIndex + 2];
+        out.data[index + 3] = data[floorIndex + 3];
+      }
+    }
+    return out;
   }
 
   // メディアンフィルター
